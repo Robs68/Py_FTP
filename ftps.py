@@ -44,16 +44,6 @@ ftps.cwd(remotepath)
 ftps.dir()
 
 
-def renomage(chemin):
-    file_list = []
-    ftps.retrlines('NLST', lambda x: file_list.append(x.split()))
-    for file in range(len(file_list)):
-        if len(file_list[file]) > 1:
-            print("Renomage de :", file_list[file])
-            fichier_rename = ' '.join(file_list[file][0:])
-            fichier = '.'.join(file_list[file])
-            ftps.rename(chemin + fichier_rename, chemin + fichier)
-
 
 def del_file():
     repertoire = (ftp.listdir(remotepath))
@@ -70,24 +60,15 @@ def del_file():
     print("Il n'y a pas de fichiers à supprimer : trop récent")
 
 
-def renomage_v2():
-    file_list = []
-    ftps.retrlines('LIST', lambda x: file_list.append(x.split()))
-    for i in range(len(file_list)):
-        if file_list[i][0] == '-rw-rw-rw-':
-            renomage(remotepath)
-        else:
-            files_d = ftps.nlst()
-            path = remotepath + (file_list[i][8]) + '/'
-            try :
-                ftps.cwd(path)
-            except:
-                pass
-            for f in range(len(files_d)):
-                renomage(path)
+def renomage():
+    for item in ftp.walk(remotepath, topdown=True):
+        for i in range(len(item[2])):
+            fichier = item[2][i]
+            fichier_rename = fichier.replace(" ", ".")
+            ftp.rename(str(item[0]) + '/' + fichier, str(item[0]) + '/' + fichier_rename)
 
 
-renomage_v2()
+renomage()
 
 os.chdir(dest_dir)
 
