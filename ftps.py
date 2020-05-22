@@ -6,6 +6,7 @@ import ftplib
 import os
 import sys
 import time
+import warnings
 from ftplib import FTP_TLS
 
 import ftputil
@@ -37,7 +38,9 @@ except:
 print("Lancement de la connexion ...", end='')
 ftps = FTP_TLS(server)
 ftps.login(user=user, passwd=password)
-ftp = ftputil.FTPHost(server, user, password, session_factory=ftplib.FTP_TLS)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=DeprecationWarning)
+    ftp = ftputil.FTPHost(server, user, password, session_factory=ftplib.FTP_TLS)
 print(' ok\n')
 
 ftps.cwd(remotepath)
